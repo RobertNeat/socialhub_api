@@ -15,12 +15,14 @@ Project provides functionality as follows:
 [*] added basic configuration for connecting to xampp mysql database,
 [*] created model classes to generate tables,
 [*] added methods to run to add example data to database,
+[*] added lombok annotations
 
 ## The list of tasks uncompleted (worked on):
 
 [] creating CRUD routes to all basic functionalities based on model classes,
 
 - adding authorization and authentication (JWT) for logging and user registration
+- adding swagger to describe the routes for REST API
 
 ### The developers that work on this project:
 
