@@ -79,3 +79,9 @@ public class UserController {
 
     //update the user information
 }
+
+
+/*
+* https://www.baeldung.com/sha-256-hashing-java
+* ^Haszowanie haseł
+* */
