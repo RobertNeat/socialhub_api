@@ -23,7 +23,7 @@ public class UserController {
 
     //get the user
     @GetMapping("/{user_id}")
-    public Optional<User> select_user(@PathVariable("user_id") int id){return repository.findById((long)id);}
+    public Optional<User> select_user(@PathVariable("user_id") long id){return repository.findById(id);}
 
     //get the list of all users
     @GetMapping("/all")//users/all

@@ -1,8 +1,9 @@
 package com.springboot.socialhub_api.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ManyToAny;
+
 
 import java.util.Date;
 import java.util.HashSet;
@@ -46,16 +47,19 @@ public class User {
         this.creation_date = creation_date;
     }
 
+
     @Getter
     @Setter
     //user have many followings
     @OneToMany(mappedBy="user")
+    @JsonIgnore
     private Set<Followings> followings;
 
     @Getter
     @Setter
     //user have many comments
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Set<Comment> comments;
 
 
@@ -63,6 +67,7 @@ public class User {
     @Setter
     //user have many posts
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Set<Post> posts;
 
 
@@ -78,6 +83,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name="user_id"))
     */
     @ManyToMany(mappedBy = "members")
+    @JsonIgnore
     private Set<Group> groups = new HashSet<>();
 
 }
