@@ -3,6 +3,7 @@ package com.springboot.socialhub_api.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.antlr.v4.runtime.misc.NotNull;
 
 
 import java.util.Date;
@@ -19,12 +20,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
     private int id;
+    @NotNull
     @Column(name = "name")
     private String name;
+    @NotNull
     @Column(name = "surname")
     private String surname;
+    @NotNull
     @Column(name = "email")
     private String email;
+    @NotNull
     @Column(name = "password")
     private String password;
     @Column(name = "profile_picture")

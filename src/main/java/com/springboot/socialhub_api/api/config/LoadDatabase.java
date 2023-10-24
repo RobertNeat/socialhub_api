@@ -47,7 +47,7 @@ public class LoadDatabase {
                         ))
                 );
 
-                User user_1 = userRepository.findById(1L).orElse(null);
+                User user_1 = userRepository.findById(1).orElse(null);
 
                 Post post_1 = new Post("First post by Jan Kowalski", "image_1.jpeg", new Date());
                 post_1.setUser(user_1);
@@ -79,7 +79,7 @@ public class LoadDatabase {
                         ))
                 );
 
-                User user_2 = userRepository.findById(2L).orElse(null);
+                User user_2 = userRepository.findById(2).orElse(null);
 
                 Post post_2 = new Post("First post by Paweł Nowak", "image_2.jpeg", new Date());
                 post_2.setUser(user_2);
@@ -111,7 +111,7 @@ public class LoadDatabase {
                         ))
                 );
 
-                User user_3 = userRepository.findById(3L).orElse(null);
+                User user_3 = userRepository.findById(3).orElse(null);
 
                 Post post_3 = new Post("First post by Michał Mordęga", "image_3.jpeg", new Date());
                 post_3.setUser(user_3);
@@ -125,13 +125,13 @@ public class LoadDatabase {
                 followingsRepository.save(following_2);
             }
             {
-                User user_1 = userRepository.findById(1L).orElse(null);
-                User user_2 = userRepository.findById(2L).orElse(null);
-                User user_3 = userRepository.findById(3L).orElse(null);
+                User user_1 = userRepository.findById(1).orElse(null);
+                User user_2 = userRepository.findById(2).orElse(null);
+                User user_3 = userRepository.findById(3).orElse(null);
 
-                Post post_1 = postRepository.findById(1L).orElse(null);
-                Post post_2 = postRepository.findById(2L).orElse(null);
-                Post post_3 = postRepository.findById(3L).orElse(null);
+                Post post_1 = postRepository.findById(1).orElse(null);
+                Post post_2 = postRepository.findById(2).orElse(null);
+                Post post_3 = postRepository.findById(3).orElse(null);
 
 
                 Comment comment_1_1 = new Comment("this is the comment from jan kowalski to jan kowalski", new Date());
