@@ -53,12 +53,7 @@ public class LoadDatabase {
                 post_1.setUser(user_1);
                 postRepository.save(post_1);
 
-                Followings following_2 = new Followings(2);
-                Followings following_3 = new Followings(3);
-                following_2.setUser(user_1);
-                following_3.setUser(user_1);
-                followingsRepository.save(following_2);
-                followingsRepository.save(following_3);
+
             }
             {//drugi blok akcji
                 /*
@@ -85,12 +80,7 @@ public class LoadDatabase {
                 post_2.setUser(user_2);
                 postRepository.save(post_2);
 
-                Followings following_1 = new Followings(1);
-                Followings following_3 = new Followings(3);
-                following_1.setUser(user_2);
-                following_3.setUser(user_2);
-                followingsRepository.save(following_1);
-                followingsRepository.save(following_3);
+
             }
             {//trzeci blok akcji
                 /*
@@ -117,12 +107,30 @@ public class LoadDatabase {
                 post_3.setUser(user_3);
                 postRepository.save(post_3);
 
-                Followings following_1 = new Followings(1);
-                Followings following_2 = new Followings(2);
-                following_1.setUser(user_3);
-                following_2.setUser(user_3);
+
+            }
+            {
+                User user_1 = userRepository.findById(1).orElse(null);
+                User user_2 = userRepository.findById(2).orElse(null);
+                User user_3 = userRepository.findById(3).orElse(null);
+
+
+                Followings following_1 = new Followings(user_1,user_2);
+                Followings following_2 = new Followings(user_1,user_3);
+
+                Followings following_3 = new Followings(user_2,user_1);
+                Followings following_4 = new Followings(user_2,user_3);
+
+                Followings following_5 = new Followings(user_3,user_1);
+                Followings following_6 = new Followings(user_3,user_2);
+
+
                 followingsRepository.save(following_1);
                 followingsRepository.save(following_2);
+                followingsRepository.save(following_3);
+                followingsRepository.save(following_4);
+                followingsRepository.save(following_5);
+                followingsRepository.save(following_6);
             }
             {
                 User user_1 = userRepository.findById(1).orElse(null);
