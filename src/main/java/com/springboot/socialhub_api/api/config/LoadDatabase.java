@@ -2,6 +2,7 @@ package com.springboot.socialhub_api.api.config;
 
 import com.springboot.socialhub_api.api.model.*;
 import com.springboot.socialhub_api.api.repositories.*;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
       stworzenia powielonej ilości rekordów
 */
 
-@Configuration
+//@Configuration
 public class LoadDatabase {
 
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
@@ -39,7 +40,7 @@ public class LoadDatabase {
                                 "Jan",
                                 "Kowalski",
                                 "jan@mail.com",
-                                "kowalski",
+                                DigestUtils.sha256Hex("kowalski"),
                                 "profile1.jpg",
                                 "this jan's account",
                                 true,
@@ -66,7 +67,7 @@ public class LoadDatabase {
                                 "Paweł",
                                 "Nowak",
                                 "pawel@mail.com",
-                                "nowak",
+                                DigestUtils.sha256Hex("nowak"),
                                 "profile2.jpg",
                                 "this pawel's account",
                                 false,
@@ -93,7 +94,7 @@ public class LoadDatabase {
                                 "Miachał",
                                 "Mordęga",
                                 "miachal@mail.com",
-                                "mordega",
+                                DigestUtils.sha256Hex("mordega"),
                                 "profile3.jpg",
                                 "this michal's account",
                                 true,
