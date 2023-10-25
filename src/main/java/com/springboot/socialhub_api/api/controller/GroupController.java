@@ -30,7 +30,6 @@ public class GroupController {
         this.postRepository = postRepository;
     }
 
-    
     // Get a group by group_id
     @GetMapping("/{group_id}")
     public ResponseEntity<Optional<Group>> getGroup(@PathVariable("group_id") int groupId) {
@@ -42,24 +41,23 @@ public class GroupController {
         }
     }
 
-
     // Get all groups
     @GetMapping("/all")
     public List<Group> getAllGroups() {
         return groupRepository.findAll();
     }
 
-
     // Create a group
     @PostMapping("/create")
-    public ResponseEntity<Group> createGroup(@RequestParam("user_id") int userId, @RequestBody Map<String, String> groupData) {
+    public ResponseEntity<Group> createGroup(@RequestParam("user_id") int userId,
+            @RequestBody Map<String, String> groupData) {
         Optional<User> user = userRepository.findById(userId);
-    
+
         if (user.isPresent()) {
             String name = groupData.get("name");
             String description = groupData.get("description");
             String coverPicture = groupData.get("coverPicture");
-    
+
             Group newGroup = new Group(name, description, coverPicture, new Date());
             newGroup.setOwner_id(userId);
             newGroup.getMembers().add(user.get()); // Dodaj właściciela jako członka
@@ -70,11 +68,11 @@ public class GroupController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-    
 
-   // Update a group
+    // Update a group
     @PutMapping("/{group_id}")
-    public ResponseEntity<Group> updateGroup(@PathVariable("group_id") int groupId, @RequestBody Map<String, String> groupData) {
+    public ResponseEntity<Group> updateGroup(@PathVariable("group_id") int groupId,
+            @RequestBody Map<String, String> groupData) {
         Optional<Group> group = groupRepository.findById(groupId);
         if (group.isPresent()) {
             Group existingGroup = group.get();
@@ -93,7 +91,6 @@ public class GroupController {
         }
     }
 
-
     // Delete a group
     @DeleteMapping("/{group_id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable("group_id") int groupId) {
@@ -107,25 +104,21 @@ public class GroupController {
     }
 
     // Add a post to a group
-    @PostMapping("/{group_id}/add-post")
-    public Post addPostToGroup(@PathVariable("group_id") int groupId, @RequestBody Map<String, String> postData) {
-        int userId = Integer.parseInt(postData.get("user_id"));
-        String description = postData.get("description");
-        String image = postData.get("image");
-
+    @PostMapping("/{group_id}/{user_id}")
+    public Post addPostToGroup(@PathVariable("group_id") int groupId, @PathVariable("user_id") int userId,
+            @RequestBody Post newPost) {
         Optional<Group> group = groupRepository.findById(groupId);
         Optional<User> user = userRepository.findById(userId);
 
         if (group.isPresent() && user.isPresent()) {
-            Post newPost = new Post(description, image, new Date());
             newPost.setUser(user.get());
             newPost.setGroup(group.get());
+            newPost.setCreation_date(new Date()); // Ustaw datę utworzenia
             return postRepository.save(newPost);
         } else {
             throw new GroupNotFoundException("Group with id " + groupId + " or User with id " + userId + " not found");
         }
     }
-
 
     // Custom exceptions for handling not found cases
     @ResponseStatus(HttpStatus.NOT_FOUND)
