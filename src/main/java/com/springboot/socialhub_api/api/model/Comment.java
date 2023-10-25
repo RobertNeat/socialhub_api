@@ -1,5 +1,6 @@
 package com.springboot.socialhub_api.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -42,6 +43,7 @@ public class Comment {
     //comments are created to one post
     @ManyToOne
     @JoinColumn(name = "post_id")
+    @JsonIgnore
     private Post post;
 
 
