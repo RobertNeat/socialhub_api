@@ -27,6 +27,7 @@ public class UserController {
     }
 
 
+
     //get the list of all users
     @GetMapping("/all")//users/all
     public List<User> select_all_users(@RequestHeader("Authorization")String token){
@@ -76,6 +77,7 @@ public class UserController {
                 String password = updateUser.getPassword();
                 String profile_picture = updateUser.getProfile_picture();
                 String description = updateUser.getDescription();
+
 
                 if(name != null){userFromDatabase.get().setName(name);}
                 if(surname != null){userFromDatabase.get().setSurname(surname);}

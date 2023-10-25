@@ -88,7 +88,7 @@ public class LoadDatabase {
                  * Użytkownik Michał Mordęga napisał jeden post, pod którym zostawił komentarz
                  * Śledzi użytkowników o identyfikatorze równym 1 i 2
                  * Napisał też komentarze do postów użytkowników 1 i 2
-                */
+                 */
                 log.info("Preloading "+userRepository.save(
                         new User(
                                 "Miachał",

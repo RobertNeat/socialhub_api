@@ -10,9 +10,10 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name="post")
+@Table(name = "post")
 @NoArgsConstructor
 @Setter
 @Getter
@@ -39,23 +40,22 @@ public class Post {
 
     @Setter
     @Getter
-    //post is created by one user
+    // post is created by one user
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-
     @Setter
     @Getter
-    //post have many comments
-    @OneToMany(mappedBy="post")
+    // post have many comments
+    @OneToMany(mappedBy = "post")
     private Set<Comment> comments;
 
-
     @Setter
     @Getter
-    //posts are in one group
+    // posts are in one group
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "group_id")
     private Group group;
 
