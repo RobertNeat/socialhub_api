@@ -14,4 +14,5 @@ public interface FollowingsRepository extends JpaRepository<Followings,Integer> 
     @Query("SELECT f FROM Followings f WHERE f.user.id = :userId AND f.followed_user.id = :followedUserId")
     Optional<Followings> findByUserIdAndFollowedUserId(int userId, int followedUserId);//to check if the target-user is followed
 
+
 }

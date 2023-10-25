@@ -78,7 +78,6 @@ public class UserController {
                 String profile_picture = updateUser.getProfile_picture();
                 String description = updateUser.getDescription();
 
-
                 if(name != null){userFromDatabase.get().setName(name);}
                 if(surname != null){userFromDatabase.get().setSurname(surname);}
                 if(email != null){userFromDatabase.get().setEmail(email);}
@@ -111,6 +110,7 @@ public class UserController {
             return null;
         }
     }
+
 
 
 }
