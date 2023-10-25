@@ -9,6 +9,8 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name="comment")
 @NoArgsConstructor
@@ -42,6 +44,7 @@ public class Comment {
     //comments are created to one post
     @ManyToOne
     @JoinColumn(name = "post_id")
+    @JsonIgnore
     private Post post;
 
 
