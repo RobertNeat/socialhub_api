@@ -23,7 +23,7 @@ public class UserController {
 
     //get the user
     @GetMapping("/{user_id}")
-    public Optional<User> select_user(@PathVariable("user_id") long id){return repository.findById(id);}
+    public Optional<User> select_user(@PathVariable("user_id") int id){return repository.findById(id);}
 
     //get the list of all users
     @GetMapping("/all")//users/all
@@ -40,7 +40,7 @@ public class UserController {
     @PutMapping
     public ResponseEntity<User> update(@RequestBody User updateUser){
         //trzeba sprawdzić czy updateUser.id istnieje w bazie danych
-        Optional<User> userFromDatabase = repository.findById((long) updateUser.getId());
+        Optional<User> userFromDatabase = repository.findById(updateUser.getId());
         if(userFromDatabase.isPresent()) {
             String name = updateUser.getName();
             String surname = updateUser.getSurname();
@@ -66,7 +66,7 @@ public class UserController {
 
     //delete the user
     @DeleteMapping("/{user_id}")
-    public void delete(@PathVariable("user_id") int id){repository.deleteById((long)id);}//jeżeli nie będzie zwracać status.ok to zrobić typ bool
+    public void delete(@PathVariable("user_id") int id){repository.deleteById(id);}//jeżeli nie będzie zwracać status.ok to zrobić typ bool
 
 
 

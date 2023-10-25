@@ -1,9 +1,14 @@
 package com.springboot.socialhub_api.api.repositories;
 
 import com.springboot.socialhub_api.api.model.Comment;
+import com.springboot.socialhub_api.api.model.Post;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CommentRepository extends JpaRepository<Comment,Long> {
+public interface CommentRepository extends JpaRepository<Comment,Integer> {
+    List<Comment> findAllByPostId(int psotId);
 
     //tutaj się będzie pisało metody do pobierania za pomocą SQL
 

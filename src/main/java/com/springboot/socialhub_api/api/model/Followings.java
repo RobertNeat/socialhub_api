@@ -1,5 +1,6 @@
 package com.springboot.socialhub_api.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,18 +15,31 @@ public class Followings {
     @Column(name = "followings_id")
     private int id;
 
-    @Column(name = "followed_user_id")
-    private int followed_user_id;
-
-    public Followings(int followed_user_id) {
-        this.followed_user_id = followed_user_id;
-    }
 
     @Getter
     @Setter
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
+
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "followed_user")
+    private User followed_user;
+
+//    @Column(name = "followed_user_id")
+//    private int followed_user_id;
+
+    public Followings(User user, User followed_user) {
+        this.user=user;
+        this.followed_user=followed_user;
+    }
+
+
+
+
 }
 
 
