@@ -15,18 +15,18 @@ import org.slf4j.LoggerFactory;
 
 /*
     Uwaga: Dane są wprowadzane przez spring-boot jednokrotnie w przypadku tworzenia bazy danych
-     i ponowne uruchomienie serwera na stworzonej bazie danych (i stworzonych tabel) nie wywoła
-      stworzenia powielonej ilości rekordów
+     i ponowne uruchomienie serwera na stworzonej bazie danych (i stworzonych tabel) wywoła
+      stworzenia powielonej ilości rekordów (lepiej zakomentować w razie ponownego restartu)
 */
 
-//@Configuration
+@Configuration
 public class LoadDatabase {
 
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
 
     @Bean
-    CommandLineRunner initUser(UserRepository userRepository, CommentRepository commentRepository, PostRepository postRepository, FollowingsRepository followingsRepository) {
+    CommandLineRunner initUser(UserRepository userRepository, CommentRepository commentRepository, PostRepository postRepository, FollowingsRepository followingsRepository,GroupRepository groupRepository) {
         return args -> {
             //pierwszy blok akcji
             {
@@ -189,6 +189,14 @@ public class LoadDatabase {
                 comment_3_3.setUser(user_3);
                 comment_3_3.setPost(post_3);
                 commentRepository.save(comment_3_3);
+            }
+            {
+
+                Group group_1 = new Group("first group","first group description","cover_1.png",new Date());
+                Group group_2 = new Group("second group","second group description","cover_1.png",new Date());
+
+                groupRepository.save(group_1);
+                groupRepository.save(group_2);
             }
 
 
