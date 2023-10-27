@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
       stworzenia powielonej ilości rekordów (lepiej zakomentować w razie ponownego restartu)
 */
 
-@Configuration
+//@Configuration
 public class LoadDatabase {
 
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);

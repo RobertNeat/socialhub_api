@@ -7,6 +7,7 @@ import com.springboot.socialhub_api.api.repositories.CommentRepository;
 import com.springboot.socialhub_api.api.repositories.PostRepository;
 import com.springboot.socialhub_api.api.repositories.UserRepository;
 
+import com.springboot.socialhub_api.api.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,70 +25,91 @@ public class CommentController {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    public CommentController(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository) {
+    private final AuthService authService;
+
+    public CommentController(CommentRepository commentRepository, PostRepository postRepository, UserRepository userRepository,AuthService authService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.authService = authService;
     }
 
     //get the comment
     @GetMapping("/{comment_id}")
-    public Optional<Comment> select_post(@PathVariable("comment_id") int id)
+    public Optional<Comment> select_post(@RequestHeader("Authorization")String token,@PathVariable("comment_id") int id)
     {
-        return commentRepository.findById(id);
+        if(authService.isLoggedIn(token)){
+            return commentRepository.findById(id);
+        }else{
+            return null;
+        }
     }
 
     //get comments by post
     @GetMapping("/all/{post_id}")
-    public List<Comment> all_comments(@PathVariable("post_id") int id)
+    public List<Comment> all_comments(@RequestHeader("Authorization")String token,@PathVariable("post_id") int id)
     {
-        return commentRepository.findAllByPostId(id);
+        if(authService.isLoggedIn(token)){
+            return commentRepository.findAllByPostId(id);
+        }else{
+            return null;
+        }
     }
 
     //create the comment
     @PostMapping("create_comment/{post_id}/{user_id}")
     public Comment createComment(
-        @PathVariable("post_id") int postId,
-        @PathVariable("user_id") int userId,
-        @RequestBody Comment newComment
+            @RequestHeader("Authorization")String token,
+            @PathVariable("post_id") int postId,
+            @PathVariable("user_id") int userId,
+            @RequestBody Comment newComment
     ) {
-        // Fetch the associated post and user from the database
-        Post post = postRepository.findById(postId)
+        if(authService.isLoggedIn(token)){
+            // Fetch the associated post and user from the database
+            Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found with ID: " + postId));
 
-        User user = userRepository.findById(userId)
+            User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + userId));
 
-        // Set the fetched post and user for the new comment
-        newComment.setPost(post);
-        newComment.setUser(user);
+            // Set the fetched post and user for the new comment
+            newComment.setPost(post);
+            newComment.setUser(user);
 
-        // Save the new comment
-        return commentRepository.save(newComment);
+            // Save the new comment
+            return commentRepository.save(newComment);
+        }else{
+            return null;
+        }
     }
 
     //update the comment
     @PutMapping
-    public ResponseEntity<Comment> update(@RequestBody Comment updateComment)
+    public ResponseEntity<Comment> update(@RequestHeader("Authorization")String token,@RequestBody Comment updateComment)
     {
-        Optional<Comment> commentFromDatabase = commentRepository.findById(updateComment.getId());
-        if(commentFromDatabase.isPresent()){
-            String description = updateComment.getDescription();
-            Date creation_date = updateComment.getCreation_date();
+        if(authService.isLoggedIn(token)){
+            Optional<Comment> commentFromDatabase = commentRepository.findById(updateComment.getId());
+            if(commentFromDatabase.isPresent()){
+                String description = updateComment.getDescription();
+                Date creation_date = updateComment.getCreation_date();
 
-            if(description!=null){commentFromDatabase.get().setDescription(description);}
-            if(creation_date!=null){commentFromDatabase.get().setCreation_date(creation_date);}
+                if(description!=null){commentFromDatabase.get().setDescription(description);}
+                if(creation_date!=null){commentFromDatabase.get().setCreation_date(creation_date);}
 
-            return ResponseEntity.ok(commentRepository.save(commentFromDatabase.get()));
+                return ResponseEntity.ok(commentRepository.save(commentFromDatabase.get()));
+            }else{
+                return ResponseEntity.notFound().build();
+            }
         }else{
-            return ResponseEntity.notFound().build();
+            return null;
         }
     }
 
     //delete the comment
     @DeleteMapping("/{comment_id}")
-    public void delete(@PathVariable("comment_id") int id) {
-        commentRepository.deleteById(id);
+    public void delete(@RequestHeader("Authorization")String token,@PathVariable("comment_id") int id) {
+        if(authService.isLoggedIn(token))
+            commentRepository.deleteById(id);
     }
 
     

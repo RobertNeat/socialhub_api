@@ -6,6 +6,7 @@ import com.springboot.socialhub_api.api.model.Post;
 import com.springboot.socialhub_api.api.repositories.PostRepository;
 import com.springboot.socialhub_api.api.repositories.UserRepository;
 
+import com.springboot.socialhub_api.api.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,28 +23,40 @@ public class PostController {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    public PostController(PostRepository postRepository, UserRepository userRepository) {
+    private final AuthService authService;
+
+    public PostController(PostRepository postRepository, UserRepository userRepository,AuthService authService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.authService = authService;
     }
 
     //get the post
     @GetMapping("/{post_id}")
-    public Optional<Post> select_post(@PathVariable("post_id") int id)
+    public Optional<Post> select_post(@RequestHeader("Authorization")String token,@PathVariable("post_id") int id)
     {
-        return postRepository.findById(id);
+        if(authService.isLoggedIn(token)){
+            return postRepository.findById(id);
+        }else{
+            return null;
+        }
     }
 
     //get all post for user's feed
     @GetMapping("/all/{user_id}")
-    public List<Post> all_posts(@PathVariable("user_id") int id)
+    public List<Post> all_posts(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id)
     {
-        return postRepository.findAllByUserId(id);
+        if(authService.isLoggedIn(token)){
+            return postRepository.findAllByUserId(id);
+        }else{
+            return null;
+        }
     }
 
     //create new post on user's feed
     @PostMapping("/create/{user_id}")
-    public Post createPost(@PathVariable("user_id") int id,@RequestBody Post newPost) {
+    public Post createPost(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id,@RequestBody Post newPost) {
+        if(authService.isLoggedIn(token)){
         // Fetch the user from the database by user_id
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
@@ -53,33 +66,42 @@ public class PostController {
         
         // Save the new post
         return postRepository.save(newPost);
+        }else{
+            return null;
+        }
     }
 
     //update the post
     @PutMapping
-    public ResponseEntity<Post> update(@RequestBody Post updatePost)
+    public ResponseEntity<Post> update(@RequestHeader("Authorization")String token,@RequestBody Post updatePost)
     {
-        Optional<Post> postFromDatabase = postRepository.findById(updatePost.getId());
-        if(postFromDatabase.isPresent()){
-            String description = updatePost.getDescription();
-            String image = updatePost.getImage();
-            Date creation_date = updatePost.getCreation_date();
+        if(authService.isLoggedIn(token)){
+            Optional<Post> postFromDatabase = postRepository.findById(updatePost.getId());
+            if(postFromDatabase.isPresent()){
+                String description = updatePost.getDescription();
+                String image = updatePost.getImage();
+                Date creation_date = updatePost.getCreation_date();
 
-            if(description!=null){postFromDatabase.get().setDescription(description);}
-            if(image!=null){postFromDatabase.get().setImage(image);}
-            if(creation_date!=null){postFromDatabase.get().setCreation_date(creation_date);}
+                if(description!=null){postFromDatabase.get().setDescription(description);}
+                if(image!=null){postFromDatabase.get().setImage(image);}
+                if(creation_date!=null){postFromDatabase.get().setCreation_date(creation_date);}
 
-            return ResponseEntity.ok(postRepository.save(postFromDatabase.get()));
+                return ResponseEntity.ok(postRepository.save(postFromDatabase.get()));
+            }else{
+                return ResponseEntity.notFound().build();
+            }
         }else{
-            return ResponseEntity.notFound().build();
+            return null;
         }
     }
 
     //delete the post
     @DeleteMapping("/{post_id}")
-    public void delete(@PathVariable("post_id") int id)
+    public void delete(@RequestHeader("Authorization")String token,@PathVariable("post_id") int id)
     {
-        postRepository.deleteById(id);
+        if(authService.isLoggedIn(token))
+            postRepository.deleteById(id);
+
     }
     
 
