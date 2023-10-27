@@ -5,14 +5,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class SocialhubApiApplication {
-	//model, kontroler, serwis
-	//https://youtu.be/Zo9xQzibp4Y?t=220
-
-	//kontroler - routy na ścieżki api
-
-
 	public static void main(String[] args) {
 		SpringApplication.run(SocialhubApiApplication.class, args);
 	}
 
 }
+
+/*
+* Aby skorzystać z dokumentacji swagger z paczki OpenApi (OpenApi zawiera w sobie Swagger) należy:
+* - w przeglądarce (GET):http://localhost:8080/swagger (domyślnie: http://localhost:8080/v3/api-docs)
+* - w przeglądarce (HTML UI): http://localhost:8080/swagger.html (domyślnie: http://localhost:8080/swagger-ui/index.html)
+* (^ domyślne trasy dokumentacji zmieniliśmy za pomocą application.properties)
+* */
