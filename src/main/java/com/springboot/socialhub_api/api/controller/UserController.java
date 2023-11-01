@@ -4,8 +4,15 @@ package com.springboot.socialhub_api.api.controller;
 import com.springboot.socialhub_api.api.model.User;
 import com.springboot.socialhub_api.api.repositories.UserRepository;
 import com.springboot.socialhub_api.api.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.springdoc.core.annotations.RouterOperation;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +37,11 @@ public class UserController {
 
     //get the list of all users
     @GetMapping("/all")//users/all
+    @Operation(summary = "Get all users", description = "Get all user objects based on the valid token")
+    @ApiResponses(value = {
+            @ApiResponse(description = "All user fetched successfully",responseCode = "200"),
+            @ApiResponse(description = "Unauthorized",responseCode = "401"),
+    })
     public List<User> select_all_users(@RequestHeader("Authorization")String token){
         if(authService.isLoggedIn(token)){
             return repository.findAll();
@@ -40,6 +52,16 @@ public class UserController {
 
     //get the user
     @GetMapping("/{user_id}")
+    @Operation(summary = "Get a user", description = "Get a user data based on user identifier and the valid token")
+    @ApiResponses(value = {
+            @ApiResponse(description = "User found",responseCode = "200"),
+            @ApiResponse(description = "Unauthorized",responseCode = "401"),
+    })
+    @Parameters(
+            value={
+                    @Parameter(name = "user_id",example="46"),
+            }
+    )
     public Optional<User> select_user(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id){
         if(authService.isLoggedIn(token)){
             return repository.findById(id);
@@ -50,6 +72,21 @@ public class UserController {
 
 
     //insert new user (register) - stworzenie nowego użytkownika
+    @Operation(summary = "Create a new user", description = "Create a user based on user object and the valid token")
+    @ApiResponses(value = {
+            @ApiResponse(description = "User created successfully",responseCode = "200"),
+            @ApiResponse(description = "Unauthorized",responseCode = "401"),
+    })
+    @Parameters(
+            value={
+                    @Parameter(name = "name",example="Jan"),
+                    @Parameter(name="surname",example="Kowalski"),
+                    @Parameter(name="email",example="jan@mail.com"),
+                    @Parameter(name="password",example="passw*rd"),
+                    @Parameter(name="profile_picture",example="image.jpg"),
+                    @Parameter(name="description",example="profile description")
+            }
+    )
     @PostMapping()
     public User create(@RequestHeader("Authorization")String token,@RequestBody User newUser){
         if(authService.isLoggedIn(token)){
@@ -65,6 +102,22 @@ public class UserController {
     }
 
     //update the user
+    @Operation(summary = "Update a user", description = "Update a user based on user object and the valid token")
+    @ApiResponses(value = {
+            @ApiResponse(description = "User updated successfully",responseCode = "200"),
+            @ApiResponse(description = "User not found",responseCode = "404"),
+            @ApiResponse(description = "Unauthorized",responseCode = "401"),
+    })
+    @Parameters(
+            value={
+                    @Parameter(name = "name",example="Jan"),
+                    @Parameter(name="surname",example="Kowalski"),
+                    @Parameter(name="email",example="jan@mail.com"),
+                    @Parameter(name="password",example="passw*rd"),
+                    @Parameter(name="profile_picture",example="image.jpg"),
+                    @Parameter(name="description",example="profile description")
+            }
+    )
     @PutMapping
     public ResponseEntity<User> update(@RequestHeader("Authorization")String token,@RequestBody User updateUser){
         if(authService.isLoggedIn(token)){
@@ -96,6 +149,12 @@ public class UserController {
     }
 
     //delete the user
+    @Operation(summary = "Delete a user", description = "Delete a user based on user identifier and the valid token")
+    @ApiResponses(value = {
+            @ApiResponse(description = "User deleted successfully",responseCode = "200"),
+            @ApiResponse(description = "User not found",responseCode = "404"),
+            @ApiResponse(description = "Unauthorized",responseCode = "401"),
+    })
     @DeleteMapping("/{user_id}")
     public ResponseEntity<?> delete(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id){
         if(authService.isLoggedIn(token)){

@@ -17,3 +17,10 @@ public class SocialhubApiApplication {
 * - w przeglądarce (HTML UI): http://localhost:8080/swagger.html (domyślnie: http://localhost:8080/swagger-ui/index.html)
 * (^ domyślne trasy dokumentacji zmieniliśmy za pomocą application.properties)
 * */
+
+
+/*
+* Adnotacje swagger ( a w naszym przypadku springdoc):
+* -jako referencja  --- https://docs.swagger.io/swagger-core/v1.5.0/apidocs/
+* -adnotacje ktore mozna używać --- https://springdoc.org/#migrating-from-springfox
+* */

@@ -7,6 +7,11 @@ import com.springboot.socialhub_api.api.repositories.PostRepository;
 import com.springboot.socialhub_api.api.repositories.UserRepository;
 
 import com.springboot.socialhub_api.api.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -73,36 +78,44 @@ public class PostController {
 
     //update the post
     @PutMapping
-    public ResponseEntity<Post> update(@RequestHeader("Authorization")String token,@RequestBody Post updatePost)
-    {
-        if(authService.isLoggedIn(token)){
+    public ResponseEntity<Post> update(@RequestHeader("Authorization")String token,@RequestBody Post updatePost) {
+        if (authService.isLoggedIn(token)) {
             Optional<Post> postFromDatabase = postRepository.findById(updatePost.getId());
-            if(postFromDatabase.isPresent()){
+            if (postFromDatabase.isPresent()) {
                 String description = updatePost.getDescription();
                 String image = updatePost.getImage();
                 Date creation_date = updatePost.getCreation_date();
 
-                if(description!=null){postFromDatabase.get().setDescription(description);}
-                if(image!=null){postFromDatabase.get().setImage(image);}
-                if(creation_date!=null){postFromDatabase.get().setCreation_date(creation_date);}
+                if (description != null) {
+                    postFromDatabase.get().setDescription(description);
+                }
+                if (image != null) {
+                    postFromDatabase.get().setImage(image);
+                }
+                if (creation_date != null) {
+                    postFromDatabase.get().setCreation_date(creation_date);
+                }
 
                 return ResponseEntity.ok(postRepository.save(postFromDatabase.get()));
-            }else{
+            } else {
                 return ResponseEntity.notFound().build();
             }
-        }else{
-            return null;
+
         }
+        return null;
     }
 
     //delete the post
     @DeleteMapping("/{post_id}")
     public void delete(@RequestHeader("Authorization")String token,@PathVariable("post_id") int id)
     {
-        if(authService.isLoggedIn(token))
-            postRepository.deleteById(id);
-
+        if(authService.isLoggedIn(token)){
+            if(authService.isLoggedIn(token)) {
+                postRepository.deleteById(id);
+            }
+        }
     }
     
+
 
 }
