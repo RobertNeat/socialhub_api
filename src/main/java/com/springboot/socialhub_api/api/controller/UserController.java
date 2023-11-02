@@ -1,6 +1,7 @@
 package com.springboot.socialhub_api.api.controller;
 
 
+import com.springboot.socialhub_api.api.config.FileUploadProperties;
 import com.springboot.socialhub_api.api.model.User;
 import com.springboot.socialhub_api.api.repositories.UserRepository;
 import com.springboot.socialhub_api.api.service.AuthService;
@@ -11,14 +12,24 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springdoc.core.annotations.RouterOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
+
+import java.util.UUID;
+import org.springframework.util.StringUtils;
+
 
 @CrossOrigin("http://127.0.0.1:5500")
 @RestController
@@ -27,6 +38,8 @@ public class UserController {
 
     private final UserRepository repository;
     private final AuthService authService;
+    @Autowired
+    private FileUploadProperties fileUploadProperties;
 
     UserController(UserRepository repository,AuthService authService) {
         this.repository = repository;
@@ -88,18 +101,76 @@ public class UserController {
             }
     )
     @PostMapping()
-    public User create(@RequestHeader("Authorization")String token,@RequestBody User newUser){
+    public User create(@RequestHeader("Authorization")String token, @RequestBody User newUser){
         if(authService.isLoggedIn(token)){
             String raw_password = newUser.getPassword();
             String encoded_password = DigestUtils.sha256Hex(raw_password);
-
             newUser.setPassword(encoded_password);
-
             return repository.save(newUser);
         }else{
             return null;
         }
     }
+
+    //uploading the profile_picture
+    @PostMapping(path="/picture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public User uploadPicture(@RequestHeader("Authorization")String token,@RequestParam("userId") int user_id ,@RequestParam("profile_picture") MultipartFile file){
+        if(authService.isLoggedIn(token)){
+            Optional<User> user_query = repository.findById(user_id);
+            if(user_query.isPresent()){
+                User user = user_query.get();
+                String filePath = fileUploadProperties.getPath();
+
+                String originalFilename = file.getOriginalFilename();
+                String fileExtension = StringUtils.getFilenameExtension(originalFilename);
+                String randomFileName = UUID.randomUUID().toString() + "." + fileExtension;
+
+                try{
+                    //withpout changing the name
+                    //file.transferTo(new File(filePath+file.getOriginalFilename()));
+                    //with generating random name
+                    file.transferTo(new File(filePath + randomFileName));
+
+                    //System.out.println(filePath+file.getOriginalFilename());
+                    System.out.println(filePath+randomFileName);
+                }catch(Exception e){
+                    System.out.println(e.getMessage());
+                }
+                user.setProfile_picture(randomFileName);
+                return repository.save(user);
+            }
+            return null;
+        }else{
+            return null;
+        }
+    }
+
+
+    //get the profile picture
+    @GetMapping(path="/picture/{profile_picture}",produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE}) //produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE}
+    public ResponseEntity<?> downloadPicture(@PathVariable("profile_picture") String picture_name){
+        //if(authService.isLoggedIn(token)){
+            Optional<User> user_query = repository.findByName(picture_name);
+            String location = fileUploadProperties.getPath();
+            if(user_query.isPresent()){
+                String file_path = location+user_query.get().getProfile_picture();
+                try{
+                    byte[] image = Files.readAllBytes(new File(file_path).toPath());
+                    //return image;
+                    return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("image/jpg")).body(image);
+                }catch(Exception e) {
+                    System.out.println(e.getMessage());
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Image reading error");
+                }
+            }else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error fetching image resource");
+            }
+        //}else{
+        //    byte[] image = null;
+        //    return image;
+        //}
+    }
+
 
     //update the user
     @Operation(summary = "Update a user", description = "Update a user based on user object and the valid token")
