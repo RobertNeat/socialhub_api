@@ -1,16 +1,23 @@
 package com.springboot.socialhub_api.api.controller;
 
+import com.springboot.socialhub_api.api.config.FileUploadProperties;
 import com.springboot.socialhub_api.api.model.Group;
 import com.springboot.socialhub_api.api.repositories.GroupRepository;
 import com.springboot.socialhub_api.api.repositories.PostRepository;
 import com.springboot.socialhub_api.api.repositories.UserRepository;
 import com.springboot.socialhub_api.api.service.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import com.springboot.socialhub_api.api.model.User;
 import com.springboot.socialhub_api.api.model.Post;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.*;
 
 @CrossOrigin("http://127.0.0.1:5500")
@@ -23,6 +30,8 @@ public class GroupController {
     private final PostRepository postRepository;
 
     private final AuthService authService;
+    @Autowired
+    private FileUploadProperties fileUploadProperties;
 
     GroupController(GroupRepository groupRepository, UserRepository userRepository, PostRepository postRepository,AuthService authService) {
         this.groupRepository = groupRepository;
@@ -81,6 +90,58 @@ public class GroupController {
             return null;
         }
     }
+
+    //upload cover to group
+    @PostMapping(path="/cover",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadCover(@RequestHeader("Authorization")String token,@RequestParam("groupId") int group_id ,@RequestParam("image") MultipartFile file) {
+        if (authService.isLoggedIn(token)) {
+            Optional<Group> group_query = groupRepository.findById(group_id);
+            if(group_query.isPresent()){
+                Group group = group_query.get();
+                String filePath = fileUploadProperties.getPath();
+
+                String originalFilename = file.getOriginalFilename();
+                String fileExtension = StringUtils.getFilenameExtension(originalFilename);
+                String randomFileName = UUID.randomUUID().toString() + "." + fileExtension;
+
+                try {
+                    file.transferTo(new File(filePath + randomFileName));
+                    System.out.println(filePath + randomFileName);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+
+                group.setCover_picture(randomFileName);
+                Group saved_group = groupRepository.save(group);
+                return ResponseEntity.status(HttpStatus.OK).body(saved_group);
+            }else{
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Group not found in DB");
+            }
+        }return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
+    }
+
+
+    //get the group cover
+    @GetMapping(path="/cover/{cover_image}",produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+    public ResponseEntity<?> downloadCover(@PathVariable("cover_image") String cover_name){
+        Optional<Group> group_query = groupRepository.findByCoverPictureName(cover_name);
+        String location = fileUploadProperties.getPath();
+        if(group_query.isPresent()){
+            String file_path = location+group_query.get().getCover_picture();
+            try{
+                byte[] image = Files.readAllBytes(new File(file_path).toPath());
+                //return image;
+                return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("image/jpg")).body(image);
+            }catch(Exception e) {
+                System.out.println(e.getMessage());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Image reading error");
+            }
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error fetching image resource");
+        }
+    }
+
+
 
     // Update a group
     @PutMapping("/{group_id}")
