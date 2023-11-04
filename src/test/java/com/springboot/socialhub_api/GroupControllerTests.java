@@ -13,8 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -34,12 +33,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GroupControllerTests {
-    
-    
+
     @InjectMocks
     private GroupController groupController;
 
@@ -55,7 +52,7 @@ public class GroupControllerTests {
     @Mock
     private AuthService authService;
 
-    @Autowired
+    @Mock
     private FileUploadProperties fileUploadProperties;
 
     private MockMvc mockMvc;
@@ -82,7 +79,7 @@ public class GroupControllerTests {
 
     @Test
     void testGetGroupNotFound() throws Exception {
-        int groupId = 1;
+        int groupId = 100;
         String token = "3b20d688-e8e8-49e7-86bf-aa54dbf5f7f3";
 
         when(authService.isLoggedIn(token)).thenReturn(true);
@@ -150,19 +147,22 @@ public class GroupControllerTests {
 
     @Test
     public void testUploadCover() {
+        MockitoAnnotations.openMocks(this); // Inicjalizacja mocków
+
         // Przygotowanie danych testowych
         when(authService.isLoggedIn(anyString())).thenReturn(true);
-        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(new Group())); // Możesz dostosować odpowiednie dane grupy
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(new Group())); // Możesz dostosować odpowiednie
+                                                                                       // dane grupy
 
         // Przygotowanie pliku do przesłania
         MultipartFile file = new MockMultipartFile("image", "cover.jpg", "image/jpeg", "treść_pliku".getBytes());
 
         // Przygotowanie ścieżki dostępu z odpowiednim zachowaniem
-        when(fileUploadProperties.getPath()).thenReturn("/ścieżka/do/zapisu/plików/");
+        when(fileUploadProperties.getPath()).thenReturn("/ścieżka/do/zapisu/plików");
 
         ResponseEntity<?> response = groupController.uploadCover("fake_token", 1, file);
 
-    response.getStatusCode();
+        response.getStatusCode();
     }
 
     @Test
@@ -170,7 +170,8 @@ public class GroupControllerTests {
         int groupId = 1;
         String token = "3b20d688-e8e8-49e7-86bf-aa54dbf5f7f3";
         String fileName = "test.jpg";
-        MockMultipartFile file = new MockMultipartFile("image", fileName, MediaType.IMAGE_JPEG_VALUE, "Test image content".getBytes());
+        MockMultipartFile file = new MockMultipartFile("image", fileName, MediaType.IMAGE_JPEG_VALUE,
+                "Test image content".getBytes());
 
         when(authService.isLoggedIn(token)).thenReturn(true);
         when(groupRepository.findById(groupId)).thenReturn(Optional.empty());
@@ -184,23 +185,23 @@ public class GroupControllerTests {
 
     @Test
     public void testUploadCoverError() {
+        MockitoAnnotations.openMocks(this); // Inicjalizacja mocków
+
         // Przygotowanie danych testowych
         when(authService.isLoggedIn(anyString())).thenReturn(true);
-        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(new Group())); // Możesz dostosować odpowiednie dane grupy
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(new Group())); // Możesz dostosować odpowiednie
+                                                                                       // dane grupy
 
         // Przygotowanie pliku do przesłania
         MultipartFile file = new MockMultipartFile("image", "cover.jpg", "image/jpeg", "treść_pliku".getBytes());
 
-        // Zastrzeżenie zachowania fileUploadProperties.getPath() - zwraca dowolną ścieżkę, np. "/ścieżka/do/zapisu/plików/"
+        // Zastrzeżenie zachowania fileUploadProperties.getPath() - zwraca dowolną
+        // ścieżkę, np. "/ścieżka/do/zapisu/plików/"
         when(fileUploadProperties.getPath()).thenReturn("/ścieżka/do/zapisu/plików/");
 
         ResponseEntity<?> response = groupController.uploadCover("fake_token", 1, file);
 
         response.getStatusCode();
     }
-    
 
-    
-    
 }
-
