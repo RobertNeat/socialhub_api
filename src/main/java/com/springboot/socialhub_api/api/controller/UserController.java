@@ -55,11 +55,11 @@ public class UserController {
             @ApiResponse(description = "All user fetched successfully",responseCode = "200"),
             @ApiResponse(description = "Unauthorized",responseCode = "401"),
     })
-    public List<User> select_all_users(@RequestHeader("Authorization")String token){
+    public ResponseEntity<?> select_all_users(@RequestHeader("Authorization")String token){
         if(authService.isLoggedIn(token)){
-            return repository.findAll();
+            return ResponseEntity.ok(repository.findAll());
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
@@ -75,11 +75,11 @@ public class UserController {
                     @Parameter(name = "user_id",example="46"),
             }
     )
-    public Optional<User> select_user(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id){
+    public ResponseEntity<?> select_user(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id){
         if(authService.isLoggedIn(token)){
-            return repository.findById(id);
+            return ResponseEntity.ok(repository.findById(id));
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
@@ -101,14 +101,15 @@ public class UserController {
             }
     )
     @PostMapping()
-    public User create(@RequestHeader("Authorization")String token, @RequestBody User newUser){
+    public ResponseEntity<?> create(@RequestHeader("Authorization")String token, @RequestBody User newUser){
         if(authService.isLoggedIn(token)){
             String raw_password = newUser.getPassword();
             String encoded_password = DigestUtils.sha256Hex(raw_password);
             newUser.setPassword(encoded_password);
-            return repository.save(newUser);
+            return ResponseEntity.ok(repository.save(newUser));
+
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
