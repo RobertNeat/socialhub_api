@@ -114,7 +114,7 @@ public class UserController {
 
     //uploading the profile_picture
     @PostMapping(path="/picture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public User uploadPicture(@RequestHeader("Authorization")String token,@RequestParam("userId") int user_id ,@RequestParam("profile_picture") MultipartFile file){
+    public ResponseEntity<?> uploadPicture(@RequestHeader("Authorization")String token,@RequestParam("userId") int user_id ,@RequestParam("profile_picture") MultipartFile file){
         if(authService.isLoggedIn(token)){
             Optional<User> user_query = repository.findById(user_id);
             if(user_query.isPresent()){
@@ -137,12 +137,11 @@ public class UserController {
                     System.out.println(e.getMessage());
                 }
                 user.setProfile_picture(randomFileName);
-                return repository.save(user);
+                User saved_user = repository.save(user);
+                return ResponseEntity.status(HttpStatus.OK).body(saved_user);
             }
-            return null;
-        }else{
-            return null;
-        }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found in DB");
+        }return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
     }
 
 
@@ -165,10 +164,6 @@ public class UserController {
             }else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error fetching image resource");
             }
-        //}else{
-        //    byte[] image = null;
-        //    return image;
-        //}
     }
 
 
@@ -214,7 +209,7 @@ public class UserController {
                 return ResponseEntity.notFound().build();
             }
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
     }
@@ -237,7 +232,7 @@ public class UserController {
                 return ResponseEntity.notFound().build();
             }
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 
