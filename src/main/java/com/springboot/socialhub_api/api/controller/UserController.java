@@ -150,21 +150,21 @@ public class UserController {
     @GetMapping(path="/picture/{profile_picture}",produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE}) //produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE}
     public ResponseEntity<?> downloadPicture(@PathVariable("profile_picture") String picture_name){
         //if(authService.isLoggedIn(token)){
-            Optional<User> user_query = repository.findByName(picture_name);
-            String location = fileUploadProperties.getPath();
-            if(user_query.isPresent()){
-                String file_path = location+user_query.get().getProfile_picture();
-                try{
-                    byte[] image = Files.readAllBytes(new File(file_path).toPath());
-                    //return image;
-                    return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("image/jpg")).body(image);
-                }catch(Exception e) {
-                    System.out.println(e.getMessage());
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Image reading error");
-                }
-            }else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error fetching image resource");
+        Optional<User> user_query = repository.findByName(picture_name);
+        String location = fileUploadProperties.getPath();
+        if(user_query.isPresent()){
+            String file_path = location+user_query.get().getProfile_picture();
+            try{
+                byte[] image = Files.readAllBytes(new File(file_path).toPath());
+                //return image;
+                return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("image/jpg")).body(image);
+            }catch(Exception e) {
+                System.out.println(e.getMessage());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Image reading error");
             }
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error fetching image resource");
+        }
     }
 
 
