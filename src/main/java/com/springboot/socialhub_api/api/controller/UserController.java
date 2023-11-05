@@ -55,11 +55,11 @@ public class UserController {
             @ApiResponse(description = "All user fetched successfully",responseCode = "200"),
             @ApiResponse(description = "Unauthorized",responseCode = "401"),
     })
-    public List<User> select_all_users(@RequestHeader("Authorization")String token){
+    public ResponseEntity<?> select_all_users(@RequestHeader("Authorization")String token){
         if(authService.isLoggedIn(token)){
-            return repository.findAll();
+            return ResponseEntity.ok(repository.findAll());
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
@@ -75,11 +75,11 @@ public class UserController {
                     @Parameter(name = "user_id",example="46"),
             }
     )
-    public Optional<User> select_user(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id){
+    public ResponseEntity<?> select_user(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id){
         if(authService.isLoggedIn(token)){
-            return repository.findById(id);
+            return ResponseEntity.ok(repository.findById(id));
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
@@ -101,20 +101,21 @@ public class UserController {
             }
     )
     @PostMapping()
-    public User create(@RequestHeader("Authorization")String token, @RequestBody User newUser){
+    public ResponseEntity<?> create(@RequestHeader("Authorization")String token, @RequestBody User newUser){
         if(authService.isLoggedIn(token)){
             String raw_password = newUser.getPassword();
             String encoded_password = DigestUtils.sha256Hex(raw_password);
             newUser.setPassword(encoded_password);
-            return repository.save(newUser);
+            return ResponseEntity.ok(repository.save(newUser));
+
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
     //uploading the profile_picture
     @PostMapping(path="/picture",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public User uploadPicture(@RequestHeader("Authorization")String token,@RequestParam("userId") int user_id ,@RequestParam("profile_picture") MultipartFile file){
+    public ResponseEntity<?> uploadPicture(@RequestHeader("Authorization")String token,@RequestParam("userId") int user_id ,@RequestParam("profile_picture") MultipartFile file){
         if(authService.isLoggedIn(token)){
             Optional<User> user_query = repository.findById(user_id);
             if(user_query.isPresent()){
@@ -137,12 +138,11 @@ public class UserController {
                     System.out.println(e.getMessage());
                 }
                 user.setProfile_picture(randomFileName);
-                return repository.save(user);
+                User saved_user = repository.save(user);
+                return ResponseEntity.status(HttpStatus.OK).body(saved_user);
             }
-            return null;
-        }else{
-            return null;
-        }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found in DB");
+        }return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
     }
 
 
@@ -150,25 +150,21 @@ public class UserController {
     @GetMapping(path="/picture/{profile_picture}",produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE}) //produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE}
     public ResponseEntity<?> downloadPicture(@PathVariable("profile_picture") String picture_name){
         //if(authService.isLoggedIn(token)){
-            Optional<User> user_query = repository.findByName(picture_name);
-            String location = fileUploadProperties.getPath();
-            if(user_query.isPresent()){
-                String file_path = location+user_query.get().getProfile_picture();
-                try{
-                    byte[] image = Files.readAllBytes(new File(file_path).toPath());
-                    //return image;
-                    return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("image/jpg")).body(image);
-                }catch(Exception e) {
-                    System.out.println(e.getMessage());
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Image reading error");
-                }
-            }else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error fetching image resource");
+        Optional<User> user_query = repository.findByName(picture_name);
+        String location = fileUploadProperties.getPath();
+        if(user_query.isPresent()){
+            String file_path = location+user_query.get().getProfile_picture();
+            try{
+                byte[] image = Files.readAllBytes(new File(file_path).toPath());
+                //return image;
+                return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("image/jpg")).body(image);
+            }catch(Exception e) {
+                System.out.println(e.getMessage());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Image reading error");
             }
-        //}else{
-        //    byte[] image = null;
-        //    return image;
-        //}
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error fetching image resource");
+        }
     }
 
 
@@ -214,7 +210,7 @@ public class UserController {
                 return ResponseEntity.notFound().build();
             }
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
     }
@@ -237,7 +233,7 @@ public class UserController {
                 return ResponseEntity.notFound().build();
             }
         }else{
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 

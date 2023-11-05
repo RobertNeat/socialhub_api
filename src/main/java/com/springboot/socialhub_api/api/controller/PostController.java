@@ -49,41 +49,43 @@ public class PostController {
 
     //get the post
     @GetMapping("/{post_id}")
-    public Optional<Post> select_post(@RequestHeader("Authorization")String token,@PathVariable("post_id") int id)
-    {
-        if(authService.isLoggedIn(token)){
-            return postRepository.findById(id);
-        }else{
-            return null;
+    public ResponseEntity<?> select_post(@RequestHeader("Authorization") String token, @PathVariable("post_id") int id) {
+        if (authService.isLoggedIn(token)) {
+            Optional<Post> post = postRepository.findById(id);
+            if (post.isPresent()) {
+                return ResponseEntity.ok(post.get());
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied"); // Return 403 Forbidden for unauthenticated requests
         }
     }
+
 
     //get all post for user's feed
     @GetMapping("/all/{user_id}")
-    public List<Post> all_posts(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id)
-    {
-        if(authService.isLoggedIn(token)){
-            return postRepository.findAllByUserId(id);
-        }else{
-            return null;
+    public ResponseEntity<?> all_posts(@RequestHeader("Authorization") String token, @PathVariable("user_id") int id) {
+        if (authService.isLoggedIn(token)) {
+            List<Post> posts = postRepository.findAllByUserId(id);
+            return ResponseEntity.ok(posts);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
+
     //create new post on user's feed
     @PostMapping("/create/{user_id}")
-    public Post createPost(@RequestHeader("Authorization")String token,@PathVariable("user_id") int id,@RequestBody Post newPost) {
-        if(authService.isLoggedIn(token)){
-        // Fetch the user from the database by user_id
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
-        
-        // Set the user for the new post
-        newPost.setUser(user);
-        
-        // Save the new post
-        return postRepository.save(newPost);
-        }else{
-            return null;
+    public ResponseEntity<?> createPost(@RequestHeader("Authorization") String token, @PathVariable("user_id") int id, @RequestBody Post newPost) {
+        if (authService.isLoggedIn(token)) {
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + id));
+            newPost.setUser(user);
+            Post savedPost = postRepository.save(newPost);
+            return ResponseEntity.ok(savedPost);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
 
@@ -112,8 +114,8 @@ public class PostController {
                 return ResponseEntity.status(HttpStatus.OK).body(saved_post);
             }else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found in DB");
-        }
-    }return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
+            }
+        }return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not authorized");
     }
 
     //get the post image
@@ -138,7 +140,7 @@ public class PostController {
 
     //update the post
     @PutMapping
-    public ResponseEntity<Post> update(@RequestHeader("Authorization")String token,@RequestBody Post updatePost) {
+    public ResponseEntity<?> update(@RequestHeader("Authorization")String token,@RequestBody Post updatePost) {
         if (authService.isLoggedIn(token)) {
             Optional<Post> postFromDatabase = postRepository.findById(updatePost.getId());
             if (postFromDatabase.isPresent()) {
@@ -160,22 +162,20 @@ public class PostController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-
+        }else{
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
-        return null;
     }
 
     //delete the post
     @DeleteMapping("/{post_id}")
-    public void delete(@RequestHeader("Authorization")String token,@PathVariable("post_id") int id)
-    {
-        if(authService.isLoggedIn(token)){
-            if(authService.isLoggedIn(token)) {
-                postRepository.deleteById(id);
-            }
+    public ResponseEntity<?> delete(@RequestHeader("Authorization") String token, @PathVariable("post_id") int id) {
+        if (authService.isLoggedIn(token)) {
+            postRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
         }
     }
-    
-
-
 }
+
