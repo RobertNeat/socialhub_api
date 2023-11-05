@@ -48,4 +48,8 @@ public class AuthService {
         user.setPassword(DigestUtils.sha256Hex(user.getPassword()));
         repository.save(user);
     }
+
+    public Object getUserIdByToken(String string) {
+        return null;
+    }
 }

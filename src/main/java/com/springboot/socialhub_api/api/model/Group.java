@@ -37,7 +37,10 @@ public class Group {
         this.cover_picture = cover_picture;
         this.creation_date = creation_date;
     }
-
+    public void setCoverPicture(String coverPicture) {
+        this.cover_picture = coverPicture;
+    }
+    
     @Setter
     @Getter
     //the group have many posts
